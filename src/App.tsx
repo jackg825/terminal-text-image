@@ -4,9 +4,19 @@ import { ExportButtons } from '@/components/Export'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useExport } from '@/hooks/useExport'
 
+// Sanitize filename: remove invalid chars, replace spaces with dashes
+const sanitizeFilename = (name: string): string => {
+  return name
+    .trim()
+    .replace(/[<>:"/\\|?*]/g, '')
+    .replace(/\s+/g, '-')
+    .toLowerCase() || 'terminal-code'
+}
+
 export default function App() {
   const settings = useSettingsStore()
   const { previewRef, status, downloadPng, downloadSvg, copyImage } = useExport()
+  const filename = sanitizeFilename(settings.tabTitle)
 
   return (
     <div className="app">
@@ -35,8 +45,8 @@ export default function App() {
           <ExportButtons
             status={status}
             onCopy={() => copyImage()}
-            onDownloadPng={() => downloadPng()}
-            onDownloadSvg={() => downloadSvg()}
+            onDownloadPng={() => downloadPng(filename)}
+            onDownloadSvg={() => downloadSvg(filename)}
           />
         </aside>
 
