@@ -17,12 +17,14 @@ export default function App() {
             <h1>Terminal Text Image</h1>
           </div>
           <a
-            href="https://github.com"
+            href="https://github.com/jackg825/terminal-text-image"
             target="_blank"
             rel="noopener noreferrer"
             className="github-link"
+            title="Star on GitHub"
           >
             <GitHubIcon />
+            <span>Star</span>
           </a>
         </div>
       </header>
