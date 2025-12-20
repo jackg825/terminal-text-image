@@ -1,7 +1,8 @@
 import { languages } from '@/utils/languages'
 import { themeList } from '@/themes'
 import { useSettingsStore } from '@/stores/settingsStore'
-import type { WindowStyle, ShadowIntensity } from '@/types/settings'
+import { EFFECT_OPTIONS, getEffectColor } from '@/styles/effects'
+import type { WindowStyle, ShadowIntensity, VisualEffect } from '@/types/settings'
 
 // Fonts sorted A-Z (12 popular coding fonts)
 const fontOptions = [
@@ -46,6 +47,8 @@ export function ControlPanel() {
     backgroundColor,
     shadowIntensity,
     fontFamily,
+    visualEffect,
+    effectColor,
     setLanguage,
     setTheme,
     setFontSize,
@@ -58,7 +61,13 @@ export function ControlPanel() {
     setBackgroundColor,
     setShadowIntensity,
     setFontFamily,
+    setVisualEffect,
+    setEffectColor,
   } = useSettingsStore()
+
+  // Get the active effect color (custom or preset)
+  const activeEffectColor = getEffectColor(visualEffect, effectColor)
+  const presetColor = EFFECT_OPTIONS.find(e => e.value === visualEffect)?.color || ''
 
   return (
     <div className="control-panel">
@@ -219,6 +228,8 @@ export function ControlPanel() {
               className="control-select"
               value={shadowIntensity}
               onChange={(e) => setShadowIntensity(e.target.value as ShadowIntensity)}
+              disabled={visualEffect !== 'none'}
+              style={{ opacity: visualEffect !== 'none' ? 0.5 : 1 }}
             >
               {shadowOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -227,6 +238,74 @@ export function ControlPanel() {
               ))}
             </select>
           </div>
+
+          <div className="control-group">
+            <label className="control-label">Visual Effect</label>
+            <select
+              className="control-select"
+              value={visualEffect}
+              onChange={(e) => {
+                setVisualEffect(e.target.value as VisualEffect)
+                setEffectColor('') // Reset to preset when changing effect
+              }}
+            >
+              {EFFECT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {visualEffect !== 'none' && (
+            <div className="control-group">
+              <label className="control-label">
+                Effect Color
+                {effectColor && (
+                  <button
+                    onClick={() => setEffectColor('')}
+                    style={{
+                      marginLeft: '8px',
+                      fontSize: '0.6rem',
+                      color: 'var(--color-accent-primary)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Reset to preset
+                  </button>
+                )}
+              </label>
+              <div className="color-picker-wrapper">
+                <input
+                  type="color"
+                  className="control-color"
+                  value={activeEffectColor}
+                  onChange={(e) => setEffectColor(e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="control-input color-text"
+                  value={effectColor || presetColor}
+                  placeholder={presetColor}
+                  onChange={(e) => setEffectColor(e.target.value)}
+                />
+                {!effectColor && (
+                  <span
+                    style={{
+                      fontSize: '0.65rem',
+                      color: 'var(--color-text-tertiary)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    (preset)
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

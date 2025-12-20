@@ -1,13 +1,20 @@
-/*
- * Terminal Text Image - Neo-Brutalist Minimal Design
- * A sophisticated, developer-focused aesthetic with bold personality
- */
-
 /* UI Font */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* Code Fonts (A-Z sorted, available on Google Fonts) */
 @import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:wght@400;700&family=Fira+Code:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inconsolata:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600;700&display=swap');
+
+/* Visual Effects */
+@import './styles/effects.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Terminal Text Image - Neo-Brutalist Minimal Design
+ * A sophisticated, developer-focused aesthetic with bold personality
+ */
 
 /* System fonts fallback for fonts not on Google Fonts */
 /* Cascadia Code, Consolas, DejaVu Sans Mono, Droid Sans Mono, Hack, Monaco - use system fallback */

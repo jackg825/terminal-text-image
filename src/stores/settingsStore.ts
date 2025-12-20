@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Settings, WindowStyle, ShadowIntensity } from '@/types/settings'
+import type { Settings, WindowStyle, ShadowIntensity, VisualEffect } from '@/types/settings'
 import { DEFAULT_CODE } from '@/types/settings'
 
 interface SettingsStore extends Settings {
@@ -18,6 +18,8 @@ interface SettingsStore extends Settings {
   setShadowIntensity: (intensity: ShadowIntensity) => void
   setFontFamily: (font: string) => void
   setTabTitle: (title: string) => void
+  setVisualEffect: (effect: VisualEffect) => void
+  setEffectColor: (color: string) => void
   reset: () => void
 }
 
@@ -36,6 +38,8 @@ const defaultSettings: Settings = {
   shadowIntensity: 'medium',
   fontFamily: 'JetBrains Mono',
   tabTitle: 'terminal',
+  visualEffect: 'none',
+  effectColor: '',
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -56,6 +60,8 @@ export const useSettingsStore = create<SettingsStore>()(
       setShadowIntensity: (shadowIntensity) => set({ shadowIntensity }),
       setFontFamily: (fontFamily) => set({ fontFamily }),
       setTabTitle: (tabTitle) => set({ tabTitle }),
+      setVisualEffect: (visualEffect) => set({ visualEffect }),
+      setEffectColor: (effectColor) => set({ effectColor }),
       reset: () => set(defaultSettings),
     }),
     {
@@ -73,6 +79,8 @@ export const useSettingsStore = create<SettingsStore>()(
         backgroundColor: state.backgroundColor,
         shadowIntensity: state.shadowIntensity,
         fontFamily: state.fontFamily,
+        visualEffect: state.visualEffect,
+        effectColor: state.effectColor,
       }),
     }
   )

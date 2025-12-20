@@ -1,6 +1,7 @@
 export type WindowStyle = 'macos' | 'windows' | 'none'
 export type ShadowIntensity = 'none' | 'light' | 'medium' | 'heavy'
 export type ExportScale = 1 | 2 | 3
+export type VisualEffect = 'none' | 'neon' | 'holographic' | 'scanlines' | 'cyberpunk' | 'matrix' | 'frosted'
 
 export interface Settings {
   code: string
@@ -17,6 +18,8 @@ export interface Settings {
   shadowIntensity: ShadowIntensity
   fontFamily: string
   tabTitle: string
+  visualEffect: VisualEffect
+  effectColor: string // empty string = use preset color
 }
 
 export const DEFAULT_CODE = `// Welcome to Terminal Text Image

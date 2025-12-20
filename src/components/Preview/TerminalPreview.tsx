@@ -3,7 +3,8 @@ import { WindowChrome } from './WindowChrome'
 import { CodeDisplay } from './CodeDisplay'
 import { useShiki } from '@/hooks/useShiki'
 import { getTheme } from '@/themes'
-import type { WindowStyle, ShadowIntensity } from '@/types/settings'
+import { getEffectClassName, getEffectCSSVars } from '@/styles/effects'
+import type { WindowStyle, ShadowIntensity, VisualEffect } from '@/types/settings'
 
 interface TerminalPreviewProps {
   code: string
@@ -20,6 +21,8 @@ interface TerminalPreviewProps {
   shadowIntensity: ShadowIntensity
   fontFamily: string
   tabTitle: string
+  visualEffect: VisualEffect
+  effectColor: string
   onCodeChange?: (code: string) => void
   onTitleChange?: (title: string) => void
 }
@@ -48,12 +51,18 @@ export const TerminalPreview = forwardRef<HTMLDivElement, TerminalPreviewProps>(
       shadowIntensity,
       fontFamily,
       tabTitle,
+      visualEffect,
+      effectColor,
       onCodeChange,
       onTitleChange,
     } = props
 
     const theme = getTheme(themeId)
     const { highlightedCode, isLoading } = useShiki(code, language, themeId)
+
+    // Get effect class and CSS variables
+    const effectClass = getEffectClassName(visualEffect)
+    const effectVars = getEffectCSSVars(visualEffect, effectColor)
 
     return (
       <div
@@ -67,12 +76,14 @@ export const TerminalPreview = forwardRef<HTMLDivElement, TerminalPreviewProps>(
         }}
       >
         <div
-          className="terminal-window"
+          className={`terminal-window ${effectClass}`.trim()}
           style={{
             borderRadius: `${borderRadius}px`,
             overflow: 'hidden',
-            boxShadow: shadowStyles[shadowIntensity],
+            boxShadow: visualEffect === 'none' ? shadowStyles[shadowIntensity] : undefined,
             backgroundColor: theme.colors.background,
+            position: 'relative',
+            ...effectVars,
           }}
         >
           <WindowChrome

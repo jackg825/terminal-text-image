@@ -68,6 +68,8 @@ export default function App() {
               shadowIntensity={settings.shadowIntensity}
               fontFamily={settings.fontFamily}
               tabTitle={settings.tabTitle}
+              visualEffect={settings.visualEffect}
+              effectColor={settings.effectColor}
               onCodeChange={settings.setCode}
               onTitleChange={settings.setTabTitle}
             />
