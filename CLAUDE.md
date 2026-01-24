@@ -1,4 +1,4 @@
-# Terminal Text Image
+# Code Canvas
 
 A frontend tool for converting code/text into beautiful terminal-style images, similar to carbon.now.sh and ray.so.
 

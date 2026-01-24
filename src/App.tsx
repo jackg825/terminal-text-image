@@ -24,7 +24,7 @@ export default function App() {
         <div className="header-content">
           <div className="logo">
             <TerminalIcon />
-            <h1>Terminal Text Image</h1>
+            <h1>Code Canvas</h1>
           </div>
           <a
             href="https://github.com/jackg825/terminal-text-image"

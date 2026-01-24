@@ -65,7 +65,7 @@ export const useSettingsStore = create<SettingsStore>()(
       reset: () => set(defaultSettings),
     }),
     {
-      name: 'terminal-text-image-settings',
+      name: 'code-canvas-settings',
       partialize: (state) => ({
         language: state.language,
         theme: state.theme,

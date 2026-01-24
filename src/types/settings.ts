@@ -22,7 +22,7 @@ export interface Settings {
   effectColor: string // empty string = use preset color
 }
 
-export const DEFAULT_CODE = `// Welcome to Terminal Text Image
+export const DEFAULT_CODE = `// Welcome to Code Canvas
 // Transform your code into beautiful images
 
 function greet(name: string) {
