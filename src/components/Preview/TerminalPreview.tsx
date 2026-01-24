@@ -1,4 +1,4 @@
-import { forwardRef } from 'react'
+import { forwardRef, memo, useMemo } from 'react'
 import { WindowChrome } from './WindowChrome'
 import { CodeDisplay } from './CodeDisplay'
 import { useShiki } from '@/hooks/useShiki'
@@ -34,8 +34,8 @@ const shadowStyles: Record<ShadowIntensity, string> = {
   heavy: '0 20px 60px rgba(0, 0, 0, 0.5)',
 }
 
-export const TerminalPreview = forwardRef<HTMLDivElement, TerminalPreviewProps>(
-  function TerminalPreview(props, ref) {
+export const TerminalPreview = memo(
+  forwardRef<HTMLDivElement, TerminalPreviewProps>(function TerminalPreview(props, ref) {
     const {
       code,
       language,
@@ -60,32 +60,40 @@ export const TerminalPreview = forwardRef<HTMLDivElement, TerminalPreviewProps>(
     const theme = getTheme(themeId)
     const { highlightedCode, isLoading } = useShiki(code, language, themeId)
 
-    // Get effect class and CSS variables
-    const effectClass = getEffectClassName(visualEffect)
-    const effectVars = getEffectCSSVars(visualEffect, effectColor)
+    // Memoize effect class and CSS variables
+    const effectClass = useMemo(() => getEffectClassName(visualEffect), [visualEffect])
+    const effectVars = useMemo(
+      () => getEffectCSSVars(visualEffect, effectColor),
+      [visualEffect, effectColor]
+    )
+
+    // Memoize outer preview style
+    const previewStyle = useMemo(
+      () => ({
+        display: 'inline-block' as const,
+        padding: showBackground ? '48px' : '0',
+        backgroundColor: showBackground ? backgroundColor : 'transparent',
+        borderRadius: showBackground ? borderRadius + 16 : 0,
+      }),
+      [showBackground, backgroundColor, borderRadius]
+    )
+
+    // Memoize inner terminal window style
+    const windowStyleObj = useMemo(
+      () => ({
+        borderRadius: `${borderRadius}px`,
+        overflow: 'hidden' as const,
+        boxShadow: visualEffect === 'none' ? shadowStyles[shadowIntensity] : undefined,
+        backgroundColor: theme.colors.background,
+        position: 'relative' as const,
+        ...effectVars,
+      }),
+      [borderRadius, visualEffect, shadowIntensity, theme.colors.background, effectVars]
+    )
 
     return (
-      <div
-        ref={ref}
-        className="terminal-preview"
-        style={{
-          display: 'inline-block',
-          padding: showBackground ? '48px' : '0',
-          backgroundColor: showBackground ? backgroundColor : 'transparent',
-          borderRadius: showBackground ? borderRadius + 16 : 0,
-        }}
-      >
-        <div
-          className={`terminal-window ${effectClass}`.trim()}
-          style={{
-            borderRadius: `${borderRadius}px`,
-            overflow: 'hidden',
-            boxShadow: visualEffect === 'none' ? shadowStyles[shadowIntensity] : undefined,
-            backgroundColor: theme.colors.background,
-            position: 'relative',
-            ...effectVars,
-          }}
-        >
+      <div ref={ref} className="terminal-preview" style={previewStyle}>
+        <div className={`terminal-window ${effectClass}`.trim()} style={windowStyleObj}>
           <WindowChrome
             style={windowStyle}
             title={tabTitle}
@@ -107,5 +115,5 @@ export const TerminalPreview = forwardRef<HTMLDivElement, TerminalPreviewProps>(
         </div>
       </div>
     )
-  }
+  })
 )

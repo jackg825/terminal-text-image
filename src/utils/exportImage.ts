@@ -1,4 +1,3 @@
-import { toPng, toSvg, toBlob } from 'html-to-image'
 import type { ExportScale } from '@/types/settings'
 
 export interface ExportOptions {
@@ -12,6 +11,16 @@ const defaultOptions: ExportOptions = {
   quality: 1,
 }
 
+// Lazy load html-to-image to reduce initial bundle size
+let htmlToImageModule: typeof import('html-to-image') | null = null
+
+async function getHtmlToImage() {
+  if (!htmlToImageModule) {
+    htmlToImageModule = await import('html-to-image')
+  }
+  return htmlToImageModule
+}
+
 export async function exportToPng(
   element: HTMLElement,
   options: ExportOptions = {}
@@ -22,6 +31,7 @@ export async function exportToPng(
   element.classList.add('exporting')
 
   try {
+    const { toPng } = await getHtmlToImage()
     const dataUrl = await toPng(element, {
       pixelRatio: scale,
       quality,
@@ -49,6 +59,7 @@ export async function exportToSvg(
   element.classList.add('exporting')
 
   try {
+    const { toSvg } = await getHtmlToImage()
     const dataUrl = await toSvg(element, {
       backgroundColor,
       style: {
@@ -74,6 +85,7 @@ export async function exportToBlob(
   element.classList.add('exporting')
 
   try {
+    const { toBlob } = await getHtmlToImage()
     const blob = await toBlob(element, {
       pixelRatio: scale,
       quality,

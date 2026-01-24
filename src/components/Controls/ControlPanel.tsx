@@ -1,313 +1,54 @@
-import { languages } from '@/utils/languages'
-import { themeList } from '@/themes'
-import { useSettingsStore } from '@/stores/settingsStore'
-import { EFFECT_OPTIONS, getEffectColor } from '@/styles/effects'
-import type { WindowStyle, ShadowIntensity, VisualEffect } from '@/types/settings'
+import { memo } from 'react'
+import { useShowBackground } from '@/stores/settingsStore'
+import { LanguageControl } from './LanguageControl'
+import { ThemeControl } from './ThemeControl'
+import { FontControl } from './FontControl'
+import {
+  FontSizeControl,
+  LineHeightControl,
+  PaddingControl,
+  BorderRadiusControl,
+} from './SizeControls'
+import { WindowStyleControl, LineNumbersControl } from './WindowControls'
+import {
+  ShowBackgroundControl,
+  BackgroundColorControl,
+  ShadowControl,
+} from './BackgroundControls'
+import { VisualEffectControl, EffectColorControl } from './EffectControls'
 
-// Fonts sorted A-Z (12 popular coding fonts)
-const fontOptions = [
-  'Anonymous Pro',
-  'Cascadia Code',
-  'Consolas',
-  'DejaVu Sans Mono',
-  'Droid Sans Mono',
-  'Fira Code',
-  'Hack',
-  'IBM Plex Mono',
-  'Inconsolata',
-  'JetBrains Mono',
-  'Monaco',
-  'Source Code Pro',
-]
+// Memoized wrapper for conditional background controls
+const BackgroundSettings = memo(function BackgroundSettings() {
+  const showBackground = useShowBackground()
 
-const windowStyleOptions: { value: WindowStyle; label: string }[] = [
-  { value: 'macos', label: 'macOS' },
-  { value: 'windows', label: 'Windows' },
-  { value: 'none', label: 'None' },
-]
-
-const shadowOptions: { value: ShadowIntensity; label: string }[] = [
-  { value: 'none', label: 'None' },
-  { value: 'light', label: 'Light' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'heavy', label: 'Heavy' },
-]
-
-export function ControlPanel() {
-  const {
-    language,
-    theme,
-    fontSize,
-    lineHeight,
-    padding,
-    borderRadius,
-    showLineNumbers,
-    windowStyle,
-    showBackground,
-    backgroundColor,
-    shadowIntensity,
-    fontFamily,
-    visualEffect,
-    effectColor,
-    setLanguage,
-    setTheme,
-    setFontSize,
-    setLineHeight,
-    setPadding,
-    setBorderRadius,
-    setShowLineNumbers,
-    setWindowStyle,
-    setShowBackground,
-    setBackgroundColor,
-    setShadowIntensity,
-    setFontFamily,
-    setVisualEffect,
-    setEffectColor,
-  } = useSettingsStore()
-
-  // Get the active effect color (custom or preset)
-  const activeEffectColor = getEffectColor(visualEffect, effectColor)
-  const presetColor = EFFECT_OPTIONS.find(e => e.value === visualEffect)?.color || ''
+  if (!showBackground) {
+    return null
+  }
 
   return (
+    <>
+      <BackgroundColorControl />
+      <ShadowControl />
+      <VisualEffectControl />
+      <EffectColorControl />
+    </>
+  )
+})
+
+export const ControlPanel = memo(function ControlPanel() {
+  return (
     <div className="control-panel">
-      <div className="control-group">
-        <label className="control-label">Language</label>
-        <select
-          className="control-select"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          {languages.map((lang) => (
-            <option key={lang.id} value={lang.id}>
-              {lang.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="control-group">
-        <label className="control-label">Theme</label>
-        <select
-          className="control-select"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-        >
-          {themeList.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="control-group">
-        <label className="control-label">Font</label>
-        <select
-          className="control-select"
-          value={fontFamily}
-          onChange={(e) => setFontFamily(e.target.value)}
-        >
-          {fontOptions.map((font) => (
-            <option key={font} value={font}>
-              {font}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="control-group">
-        <label className="control-label">Font Size: {fontSize}px</label>
-        <input
-          type="range"
-          className="control-slider"
-          min={10}
-          max={24}
-          value={fontSize}
-          onChange={(e) => setFontSize(Number(e.target.value))}
-        />
-      </div>
-
-      <div className="control-group">
-        <label className="control-label">Line Height: {lineHeight}</label>
-        <input
-          type="range"
-          className="control-slider"
-          min={1}
-          max={2}
-          step={0.1}
-          value={lineHeight}
-          onChange={(e) => setLineHeight(Number(e.target.value))}
-        />
-      </div>
-
-      <div className="control-group">
-        <label className="control-label">Padding: {padding}px</label>
-        <input
-          type="range"
-          className="control-slider"
-          min={16}
-          max={64}
-          value={padding}
-          onChange={(e) => setPadding(Number(e.target.value))}
-        />
-      </div>
-
-      <div className="control-group">
-        <label className="control-label">Border Radius: {borderRadius}px</label>
-        <input
-          type="range"
-          className="control-slider"
-          min={0}
-          max={24}
-          value={borderRadius}
-          onChange={(e) => setBorderRadius(Number(e.target.value))}
-        />
-      </div>
-
-      <div className="control-group">
-        <label className="control-label">Window Style</label>
-        <select
-          className="control-select"
-          value={windowStyle}
-          onChange={(e) => setWindowStyle(e.target.value as WindowStyle)}
-        >
-          {windowStyleOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="control-group">
-        <label className="control-toggle">
-          <input
-            type="checkbox"
-            checked={showLineNumbers}
-            onChange={(e) => setShowLineNumbers(e.target.checked)}
-          />
-          <span>Show Line Numbers</span>
-        </label>
-      </div>
-
-      <div className="control-group">
-        <label className="control-toggle">
-          <input
-            type="checkbox"
-            checked={showBackground}
-            onChange={(e) => setShowBackground(e.target.checked)}
-          />
-          <span>Show Background</span>
-        </label>
-      </div>
-
-      {showBackground && (
-        <>
-          <div className="control-group">
-            <label className="control-label">Background Color</label>
-            <div className="color-picker-wrapper">
-              <input
-                type="color"
-                className="control-color"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-              />
-              <input
-                type="text"
-                className="control-input color-text"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="control-group">
-            <label className="control-label">Shadow</label>
-            <select
-              className="control-select"
-              value={shadowIntensity}
-              onChange={(e) => setShadowIntensity(e.target.value as ShadowIntensity)}
-              disabled={visualEffect !== 'none'}
-              style={{ opacity: visualEffect !== 'none' ? 0.5 : 1 }}
-            >
-              {shadowOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="control-group">
-            <label className="control-label">Visual Effect</label>
-            <select
-              className="control-select"
-              value={visualEffect}
-              onChange={(e) => {
-                setVisualEffect(e.target.value as VisualEffect)
-                setEffectColor('') // Reset to preset when changing effect
-              }}
-            >
-              {EFFECT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {visualEffect !== 'none' && (
-            <div className="control-group">
-              <label className="control-label">
-                Effect Color
-                {effectColor && (
-                  <button
-                    onClick={() => setEffectColor('')}
-                    style={{
-                      marginLeft: '8px',
-                      fontSize: '0.6rem',
-                      color: 'var(--color-accent-primary)',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    Reset to preset
-                  </button>
-                )}
-              </label>
-              <div className="color-picker-wrapper">
-                <input
-                  type="color"
-                  className="control-color"
-                  value={activeEffectColor}
-                  onChange={(e) => setEffectColor(e.target.value)}
-                />
-                <input
-                  type="text"
-                  className="control-input color-text"
-                  value={effectColor || presetColor}
-                  placeholder={presetColor}
-                  onChange={(e) => setEffectColor(e.target.value)}
-                />
-                {!effectColor && (
-                  <span
-                    style={{
-                      fontSize: '0.65rem',
-                      color: 'var(--color-text-tertiary)',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    (preset)
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+      <LanguageControl />
+      <ThemeControl />
+      <FontControl />
+      <FontSizeControl />
+      <LineHeightControl />
+      <PaddingControl />
+      <BorderRadiusControl />
+      <WindowStyleControl />
+      <LineNumbersControl />
+      <ShowBackgroundControl />
+      <BackgroundSettings />
     </div>
   )
-}
+})

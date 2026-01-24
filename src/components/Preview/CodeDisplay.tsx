@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react'
+import { memo, useMemo, useRef, useEffect } from 'react'
 import DOMPurify from 'dompurify'
 import type { TerminalTheme } from '@/types/theme'
 
@@ -15,7 +15,7 @@ interface CodeDisplayProps {
   onCodeChange?: (code: string) => void
 }
 
-export function CodeDisplay({
+export const CodeDisplay = memo(function CodeDisplay({
   highlightedCode,
   code,
   fontSize,
@@ -42,11 +42,12 @@ export function CodeDisplay({
       codeContent.scrollLeft = textarea.scrollLeft
     }
 
-    textarea.addEventListener('scroll', handleScroll)
+    // Use passive listener for better scroll performance
+    textarea.addEventListener('scroll', handleScroll, { passive: true })
     return () => textarea.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Sanitize HTML from Shiki to prevent XSS
+  // Sanitize HTML from Shiki to prevent XSS (using DOMPurify for security)
   const sanitizedHtml = useMemo(() => {
     return DOMPurify.sanitize(highlightedCode, {
       ALLOWED_TAGS: ['pre', 'code', 'span'],
@@ -54,35 +55,63 @@ export function CodeDisplay({
     })
   }, [highlightedCode])
 
+  // Memoize container style
+  const containerStyle = useMemo(
+    () => ({
+      position: 'relative' as const,
+      padding: `${padding}px`,
+      backgroundColor: theme.colors.background,
+      fontFamily: `"${fontFamily}", "Fira Code", "Monaco", "Consolas", monospace`,
+      fontSize: `${fontSize}px`,
+      lineHeight: lineHeight,
+      overflow: 'hidden' as const,
+    }),
+    [padding, theme.colors.background, fontFamily, fontSize, lineHeight]
+  )
+
+  // Memoize loading overlay style
+  const loadingStyle = useMemo(
+    () => ({
+      position: 'absolute' as const,
+      inset: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: theme.colors.background,
+      color: theme.colors.foreground,
+      opacity: 0.5,
+    }),
+    [theme.colors.background, theme.colors.foreground]
+  )
+
+  // Memoize textarea style
+  const textareaStyle = useMemo(
+    () => ({
+      position: 'absolute' as const,
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      padding: 0,
+      margin: 0,
+      border: 'none',
+      outline: 'none',
+      resize: 'none' as const,
+      background: 'transparent',
+      color: 'transparent',
+      caretColor: theme.colors.cursor,
+      fontFamily: `"${fontFamily}", "Fira Code", "Monaco", "Consolas", monospace`,
+      fontSize: `${fontSize}px`,
+      lineHeight: lineHeight,
+      whiteSpace: 'pre' as const,
+      overflow: 'auto' as const,
+    }),
+    [theme.colors.cursor, fontFamily, fontSize, lineHeight]
+  )
+
   return (
-    <div
-      className="code-display"
-      style={{
-        position: 'relative',
-        padding: `${padding}px`,
-        backgroundColor: theme.colors.background,
-        fontFamily: `"${fontFamily}", "Fira Code", "Monaco", "Consolas", monospace`,
-        fontSize: `${fontSize}px`,
-        lineHeight: lineHeight,
-        overflow: 'hidden',
-      }}
-    >
-      {isLoading && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: theme.colors.background,
-            color: theme.colors.foreground,
-            opacity: 0.5,
-          }}
-        >
-          Loading...
-        </div>
-      )}
+    <div className="code-display" style={containerStyle}>
+      {isLoading && <div style={loadingStyle}>Loading...</div>}
       <div
         style={{
           display: 'flex',
@@ -106,7 +135,7 @@ export function CodeDisplay({
             minWidth: 0,
           }}
         >
-          {/* Highlighted code (background) */}
+          {/* Highlighted code (background) - sanitized with DOMPurify */}
           <div
             ref={codeContentRef}
             className="code-content"
@@ -114,9 +143,8 @@ export function CodeDisplay({
               overflow: 'auto',
               pointerEvents: 'none',
             }}
-          >
-            <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
-          </div>
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          />
 
           {/* Editable textarea (foreground overlay) */}
           {onCodeChange && (
@@ -129,33 +157,14 @@ export function CodeDisplay({
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="off"
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                padding: 0,
-                margin: 0,
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                background: 'transparent',
-                color: 'transparent',
-                caretColor: theme.colors.cursor,
-                fontFamily: `"${fontFamily}", "Fira Code", "Monaco", "Consolas", monospace`,
-                fontSize: `${fontSize}px`,
-                lineHeight: lineHeight,
-                whiteSpace: 'pre',
-                overflow: 'auto',
-              }}
+              style={textareaStyle}
             />
           )}
         </div>
       </div>
     </div>
   )
-}
+})
 
 interface LineNumbersProps {
   count: number
@@ -164,29 +173,33 @@ interface LineNumbersProps {
   color: string
 }
 
-function LineNumbers({ count, fontSize, lineHeight, color }: LineNumbersProps) {
-  const numbers = useMemo(
-    () => Array.from({ length: count }, (_, i) => i + 1),
-    [count]
+const LineNumbers = memo(function LineNumbers({
+  count,
+  fontSize,
+  lineHeight,
+  color,
+}: LineNumbersProps) {
+  const numbers = useMemo(() => Array.from({ length: count }, (_, i) => i + 1), [count])
+
+  const style = useMemo(
+    () => ({
+      paddingRight: '16px',
+      marginRight: '16px',
+      borderRight: `1px solid ${color}33`,
+      textAlign: 'right' as const,
+      color: color,
+      userSelect: 'none' as const,
+      fontSize: `${fontSize}px`,
+      lineHeight: lineHeight,
+    }),
+    [color, fontSize, lineHeight]
   )
 
   return (
-    <div
-      className="line-numbers"
-      style={{
-        paddingRight: '16px',
-        marginRight: '16px',
-        borderRight: `1px solid ${color}33`,
-        textAlign: 'right',
-        color: color,
-        userSelect: 'none',
-        fontSize: `${fontSize}px`,
-        lineHeight: lineHeight,
-      }}
-    >
+    <div className="line-numbers" style={style}>
       {numbers.map((n) => (
         <div key={n}>{n}</div>
       ))}
     </div>
   )
-}
+})

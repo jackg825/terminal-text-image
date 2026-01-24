@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { useShallow } from 'zustand/shallow'
 import type { Settings, WindowStyle, ShadowIntensity, VisualEffect } from '@/types/settings'
 import { DEFAULT_CODE } from '@/types/settings'
 
@@ -85,3 +86,79 @@ export const useSettingsStore = create<SettingsStore>()(
     }
   )
 )
+
+// ============================================================
+// Atomic Selectors - 單一屬性選擇器，減少不必要的重渲染
+// ============================================================
+
+// State selectors
+export const useCode = () => useSettingsStore((s) => s.code)
+export const useLanguage = () => useSettingsStore((s) => s.language)
+export const useTheme = () => useSettingsStore((s) => s.theme)
+export const useFontSize = () => useSettingsStore((s) => s.fontSize)
+export const useLineHeight = () => useSettingsStore((s) => s.lineHeight)
+export const usePadding = () => useSettingsStore((s) => s.padding)
+export const useBorderRadius = () => useSettingsStore((s) => s.borderRadius)
+export const useShowLineNumbers = () => useSettingsStore((s) => s.showLineNumbers)
+export const useWindowStyle = () => useSettingsStore((s) => s.windowStyle)
+export const useShowBackground = () => useSettingsStore((s) => s.showBackground)
+export const useBackgroundColor = () => useSettingsStore((s) => s.backgroundColor)
+export const useShadowIntensity = () => useSettingsStore((s) => s.shadowIntensity)
+export const useFontFamily = () => useSettingsStore((s) => s.fontFamily)
+export const useTabTitle = () => useSettingsStore((s) => s.tabTitle)
+export const useVisualEffect = () => useSettingsStore((s) => s.visualEffect)
+export const useEffectColor = () => useSettingsStore((s) => s.effectColor)
+
+// Action selectors
+export const useSetCode = () => useSettingsStore((s) => s.setCode)
+export const useSetLanguage = () => useSettingsStore((s) => s.setLanguage)
+export const useSetTheme = () => useSettingsStore((s) => s.setTheme)
+export const useSetFontSize = () => useSettingsStore((s) => s.setFontSize)
+export const useSetLineHeight = () => useSettingsStore((s) => s.setLineHeight)
+export const useSetPadding = () => useSettingsStore((s) => s.setPadding)
+export const useSetBorderRadius = () => useSettingsStore((s) => s.setBorderRadius)
+export const useSetShowLineNumbers = () => useSettingsStore((s) => s.setShowLineNumbers)
+export const useSetWindowStyle = () => useSettingsStore((s) => s.setWindowStyle)
+export const useSetShowBackground = () => useSettingsStore((s) => s.setShowBackground)
+export const useSetBackgroundColor = () => useSettingsStore((s) => s.setBackgroundColor)
+export const useSetShadowIntensity = () => useSettingsStore((s) => s.setShadowIntensity)
+export const useSetFontFamily = () => useSettingsStore((s) => s.setFontFamily)
+export const useSetTabTitle = () => useSettingsStore((s) => s.setTabTitle)
+export const useSetVisualEffect = () => useSettingsStore((s) => s.setVisualEffect)
+export const useSetEffectColor = () => useSettingsStore((s) => s.setEffectColor)
+
+// ============================================================
+// Grouped Selectors - 分組選擇器，使用 shallow 比較
+// ============================================================
+
+// Preview 所需的所有設定
+export const usePreviewSettings = () =>
+  useSettingsStore(
+    useShallow((s) => ({
+      code: s.code,
+      language: s.language,
+      theme: s.theme,
+      fontSize: s.fontSize,
+      lineHeight: s.lineHeight,
+      padding: s.padding,
+      borderRadius: s.borderRadius,
+      showLineNumbers: s.showLineNumbers,
+      windowStyle: s.windowStyle,
+      showBackground: s.showBackground,
+      backgroundColor: s.backgroundColor,
+      shadowIntensity: s.shadowIntensity,
+      fontFamily: s.fontFamily,
+      tabTitle: s.tabTitle,
+      visualEffect: s.visualEffect,
+      effectColor: s.effectColor,
+    }))
+  )
+
+// Preview 的 action hooks
+export const usePreviewActions = () =>
+  useSettingsStore(
+    useShallow((s) => ({
+      setCode: s.setCode,
+      setTabTitle: s.setTabTitle,
+    }))
+  )
